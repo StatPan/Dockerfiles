@@ -1,0 +1,22 @@
+FROM alpine:latest
+# 환경 변수 설정
+ARG PYTHON_VERSION=3.10
+ENV APP_HOME="/app"
+
+# 필요한 패키지 설치
+RUN apk add --no-cache curl
+
+# uv 설치
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
+WORKDIR ${APP_HOME}
+RUN pwd
+USER root
+ENV PS1='\u@\h:\w\$ '
+ENV PATH="${APP_HOME}/.venv/bin:$PATH"
+RUN uv python install ${PYTHON_VERSION}
+RUN uv python pin ${PYTHON_VERSION}
+RUN uv venv .venv
+RUN uv init
+CMD ["/bin/sh", "-c", "source ${APP_HOME}/.venv/bin/activate && exec /bin/sh"]
+
